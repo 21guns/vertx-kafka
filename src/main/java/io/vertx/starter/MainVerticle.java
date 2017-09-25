@@ -14,11 +14,24 @@ public class MainVerticle extends AbstractVerticle {
   public void start(Future<Void> fut) {
     Future<String> dbVerticleDeployment = Future.future();  // <1>
     vertx.deployVerticle(new HttpServerVerticle(), dbVerticleDeployment.completer());  // <2>
-
-    dbVerticleDeployment.compose( id -> {
+    vertx.deployVerticle(
+      "io.vertx.starter.KafkaConsumerVerticle",  // <4>
+//        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
+      dbVerticleDeployment.completer());
+    dbVerticleDeployment
+//      .compose( id -> {
+//      Future<String> httpVerticleDeployment = Future.future();
+//      vertx.deployVerticle(
+//        "io.vertx.starter.KafkaConsumerVerticle",  // <4>
+////        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
+//        httpVerticleDeployment.completer());
+//
+//      return httpVerticleDeployment;  // <6>
+//    })
+      .compose( id -> {
       Future<String> httpVerticleDeployment = Future.future();
       vertx.deployVerticle(
-        "io.vertx.starter.KafkaVerticle",  // <4>
+        "io.vertx.starter.KafkaProducerVerticle",  // <4>
         new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
         httpVerticleDeployment.completer());
 

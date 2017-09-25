@@ -34,7 +34,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     // Bind "/" to our hello message - so we are still compatible.
     router.route().handler(BodyHandler.create());
-    router.get("/products").handler(this::handleListProducts);
+    router.post("/upload").handler(this::handleListProducts);
 
     // Create the HTTP server and pass the "accept" method to the request handler.
     vertx
@@ -60,7 +60,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     LOGGER.info(routingContext.currentRoute().getPath());
     DeliveryOptions options = new DeliveryOptions().addHeader("action", "all-pages"); // <2>
 
-    vertx.eventBus().send(wikiDbQueue, new JsonObject(), options, reply -> {  // <1>
+    vertx.eventBus().send(wikiDbQueue, routingContext.getBodyAsString(), options, reply -> {  // <1>
       if (reply.succeeded()) {
         JsonArray body = (JsonArray) reply.result().body();
         routingContext.response().putHeader("content-type", "application/json").end(body.encodePrettily());
