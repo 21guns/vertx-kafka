@@ -46,6 +46,8 @@ public class HttpServerVerticle extends AbstractVerticle {
   static {
     conf = HBaseConfiguration.create();
     conf.set("hbase.zookeeper.quorum", "hbase:2182");
+    conf.set("hbase.zookeeper.property.clientPort", "2182");
+
   }
   TableName tableName = TableName.valueOf("test");
   Connection conn;
