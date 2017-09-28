@@ -2,6 +2,7 @@
 build/
 bin/
 .settings
+.DS_Store
 
 # Ignore VertX file cache
 .vertx/

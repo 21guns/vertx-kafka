@@ -87,3 +87,8 @@ The whole configuration for this is rather simple:
     run {
         args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
     }
+
+## hbase docker (https://github.com/smizy/docker-hbase)
+
+
+
