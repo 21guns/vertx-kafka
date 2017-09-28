@@ -17,17 +17,17 @@
 
 package io.vertx.starter;
 
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
+import com.stumbleupon.async.Callback;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.hbase.async.AppendRequest;
+import org.hbase.async.HBaseClient;
+import org.hbase.async.PutRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -40,6 +40,7 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
+    HBaseClient client = new HBaseClient("localhost:2182");
 
     Properties config = new Properties();
     config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -52,9 +53,18 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
     // use consumer for interacting with Apache Kafka
     KafkaConsumer<String, String> consumer = KafkaConsumer.create(vertx, config);
 
+    client.ensureTableExists("test").addErrback(new Callback<Object, Object>() {
+      @Override
+      public Object call(Object arg) throws Exception {
+        return null;
+      }
+    });
     // Aggregates metrics in the dashboard
     consumer.handler(record -> {
       LOGGER.warn(record.value());
+      PutRequest appendRequest = new PutRequest("test","key",
+        "cf","dd",record.value());
+      client.put(appendRequest);
     });
 
     consumer.subscribe("test");

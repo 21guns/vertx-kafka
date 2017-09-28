@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 从高到地低 OFF 、 FATAL 、 ERROR 、 WARN 、 INFO 、 DEBUG 、 TRACE 、 ALL -->
+<!-- 日志输出规则  根据当前ROOT 级别，日志输出时，级别高于root默认的级别时  会输出 -->
+<!-- 以下  每个配置的 filter 是过滤掉输出文件里面，会出现高级别文件，依然出现低级别的日志信息，通过filter 过滤只记录本级别的日志-->
+
+<!-- 属性描述 scan：设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true
+             scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+             debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!-- 定义日志文件 输入位置 -->
+    <property name="log_dir" value="/var/ijusai/logs"/>
+    <!-- 日志最大的历史 30天 -->
+    <property name="maxHistory" value="30"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--<appender name="async" class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">-->
+        <!--<appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+            <!--<remoteHost>127.0.0.1</remoteHost>-->
+            <!--<port>5001</port>-->
+            <!--&lt;!&ndash; encoder is required &ndash;&gt;-->
+            <!--<encoder class="net.logstash.logback.encoder.LogstashEncoder" />-->
+        <!--</appender>-->
+    <!--</appender>-->
+
+    <logger name="java.sql" level="ERROR"/>
+    <logger name="org.apache.kafka" level="ERROR"/>
+    <logger name="org.apache.zookeeper" level="ERROR"/>
+    <logger name="com.zaxxer" level="ERROR"/>
+    <logger name="io.undertow" level="ERROR"/>
+    <logger name="com.senjing" level="DEBUG"/>
+
+
+    <!-- root级别   DEBUG -->
+    <root level="DEBUG">
+        <!-- 文件输出 -->
+        <!--<appender-ref ref="async"/>-->
+        <appender-ref ref="STDOUT" />
+        <!--<appender-ref ref="TRACE"/>-->
+        <!--<appender-ref ref="INFO"/>-->
+        <!--<appender-ref ref="DEBUG"/>-->
+        <!--<appender-ref ref="WARN"/>-->
+        <!--<appender-ref ref="ERROR"/>-->
+    </root>
+</configuration>

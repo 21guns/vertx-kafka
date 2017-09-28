@@ -16,7 +16,7 @@ public class MainVerticle extends AbstractVerticle {
     vertx.deployVerticle(new HttpServerVerticle(), dbVerticleDeployment.completer());  // <2>
     vertx.deployVerticle(
       "io.vertx.starter.KafkaConsumerVerticle",  // <4>
-//        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
+        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
       dbVerticleDeployment.completer());
     dbVerticleDeployment
 //      .compose( id -> {
