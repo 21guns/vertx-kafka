@@ -88,7 +88,22 @@ The whole configuration for this is rather simple:
         args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
     }
 
-## hbase docker (https://github.com/smizy/docker-hbase)
+= customer
+== hbase
+* create 'test', 'cf'
+* scan 'test'
+
+== hbase docker (https://github.com/smizy/docker-hbase)
+store data file to other dir
+* smizy/hadoop-base image
+    volumes:
+      - /data/Develop/workspace/21guns/bigdata/data/hadoop:/hadoop
+* ?????????????????????????hbase???????
+docker exec -it -u hbase regionserver-1 hbase hbck -fixMeta
+
+== run
+docker run -t -i -p 8081:8081 --link zookeeper-1:zookeeper --net vnet vertx-kafka:1.0-SNAPSHOT
+
 
 
 

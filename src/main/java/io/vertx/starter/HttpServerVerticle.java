@@ -2,14 +2,13 @@ package io.vertx.starter;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.rx.java.ObservableHandler;
 import io.vertx.rx.java.RxHelper;
-import org.hbase.async.HBaseClient;
-import org.hbase.async.HBaseClientFactory;
-import org.hbase.async.PutRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +17,11 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   public static final String CONFIG_WIKIDB_QUEUE = "wikidb.queue";
   private String wikiDbQueue = "wikidb.queue";
-  HBaseClient client;
 
   @Override
   public void start(Future<Void> fut) {
 
     wikiDbQueue = config().getString(CONFIG_WIKIDB_QUEUE, "wikidb.queue");  // <2>
-
-
-    client = HBaseClientFactory.getHBaseClient("zookeeper-1");
 
     // Create a router object.
     Router router = Router.router(vertx);
@@ -57,30 +52,17 @@ public class HttpServerVerticle extends AbstractVerticle {
   private void handleListProducts(RoutingContext routingContext) {
 
     LOGGER.info(routingContext.currentRoute().getPath());
-//    DeliveryOptions options = new DeliveryOptions().addHeader("action", "all-pages"); // <2>
-//
-//    vertx.eventBus().send(wikiDbQueue, routingContext.getBodyAsString(), options, reply -> {  // <1>
-//      if (reply.succeeded()) {
-//        JsonArray body = (JsonArray) reply.result().body();
-//        routingContext.response().putHeader("content-type", "application/json").end(body.encodePrettily());
-//      } else {
-//        routingContext.fail(reply.cause());
-//      }
-//    });
+    DeliveryOptions options = new DeliveryOptions().addHeader("action", "all-pages"); // <2>
 
-
-    client.ensureTableExists("test");
-    PutRequest appendRequest = new PutRequest("test","key",
-      "cf","dd","value11");
-    client.put(appendRequest);
-
+    vertx.eventBus().send(wikiDbQueue, routingContext.getBodyAsString(), options, reply -> {  // <1>
+      if (reply.succeeded()) {
+        JsonArray body = (JsonArray) reply.result().body();
+        routingContext.response().putHeader("content-type", "application/json").end(body.encodePrettily());
+      } else {
+        routingContext.fail(reply.cause());
+      }
+    });
 
   }
-  public static void main(String[] args) {
-//    Vertx vertx = Vertx.vertx();
-//    vertx.deployVerticle(new HttpServerVerticle());
-
-  }
-
 
 }

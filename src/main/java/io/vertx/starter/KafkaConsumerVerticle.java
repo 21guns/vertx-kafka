@@ -17,12 +17,10 @@
 
 package io.vertx.starter;
 
-import com.stumbleupon.async.Callback;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.hbase.async.AppendRequest;
 import org.hbase.async.HBaseClient;
 import org.hbase.async.PutRequest;
 import org.slf4j.Logger;
@@ -40,7 +38,7 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
-    HBaseClient client = new HBaseClient("localhost:2182");
+    HBaseClient client = new HBaseClient("zookeeper");
 
     Properties config = new Properties();
     config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -53,18 +51,28 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
     // use consumer for interacting with Apache Kafka
     KafkaConsumer<String, String> consumer = KafkaConsumer.create(vertx, config);
 
-    client.ensureTableExists("test").addErrback(new Callback<Object, Object>() {
-      @Override
-      public Object call(Object arg) throws Exception {
-        return null;
-      }
-    });
+    client.ensureTableExists("test");
     // Aggregates metrics in the dashboard
     consumer.handler(record -> {
       LOGGER.warn(record.value());
       PutRequest appendRequest = new PutRequest("test","key",
         "cf","dd",record.value());
       client.put(appendRequest);
+
+      //query
+//      try {
+//        ArrayList<ArrayList<KeyValue>> rows = null;
+//        Scanner scanner = client.newScanner("test");
+//        while ((rows = scanner.nextRows(1).joinUninterruptibly()) != null) {
+//          LOGGER.info("received a page of users.");
+//          for (ArrayList<KeyValue> row : rows) {
+//            KeyValue kv = row.get(0);
+//            LOGGER.debug(new String(kv.key()));
+//          }
+//        }
+//      } catch (Exception e) {
+//        e.printStackTrace();
+//      }
     });
 
     consumer.subscribe("test");
