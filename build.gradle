@@ -32,7 +32,7 @@ mainClassName = 'io.vertx.core.Launcher'
 apply plugin: 'docker'
 
 def vertxVersion = '3.4.2'
-def mainVerticleName = 'io.vertx.starter.HttpServerVerticle'
+def mainVerticleName = 'io.vertx.starter.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 

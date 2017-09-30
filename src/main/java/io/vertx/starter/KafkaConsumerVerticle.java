@@ -41,20 +41,20 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
     HBaseClient client = new HBaseClient("zookeeper");
 
     Properties config = new Properties();
-    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-    config.put(ConsumerConfig.GROUP_ID_CONFIG, "my_group");
+    config.put(ConsumerConfig.GROUP_ID_CONFIG, "toHbase");
     config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
     // use consumer for interacting with Apache Kafka
     KafkaConsumer<String, String> consumer = KafkaConsumer.create(vertx, config);
 
-    client.ensureTableExists("test");
+//    client.ensureTableExists("test");
     // Aggregates metrics in the dashboard
     consumer.handler(record -> {
-      LOGGER.warn(record.value());
+      LOGGER.info(record.value());
       PutRequest appendRequest = new PutRequest("test","key",
         "cf","dd",record.value());
       client.put(appendRequest);

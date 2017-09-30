@@ -12,37 +12,16 @@ public class MainVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> fut) {
-    Future<String> dbVerticleDeployment = Future.future();  // <1>
-    vertx.deployVerticle(new HttpServerVerticle(), dbVerticleDeployment.completer());  // <2>
+
+    vertx.deployVerticle(new HttpServerVerticle());  // <2>
+
     vertx.deployVerticle(
       "io.vertx.starter.KafkaConsumerVerticle",  // <4>
-        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
-      dbVerticleDeployment.completer());
-    dbVerticleDeployment
-//      .compose( id -> {
-//      Future<String> httpVerticleDeployment = Future.future();
-//      vertx.deployVerticle(
-//        "io.vertx.starter.KafkaConsumerVerticle",  // <4>
-////        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
-//        httpVerticleDeployment.completer());
-//
-//      return httpVerticleDeployment;  // <6>
-//    })
-      .compose( id -> {
-      Future<String> httpVerticleDeployment = Future.future();
-      vertx.deployVerticle(
-        "io.vertx.starter.KafkaProducerVerticle",  // <4>
-        new DeploymentOptions().setWorker(true).setInstances(5),    // <5>
-        httpVerticleDeployment.completer());
+        new DeploymentOptions().setWorker(true).setInstances(5));
 
-      return httpVerticleDeployment;  // <6>
-    }).setHandler(ar -> {   // <7>
-      if (ar.succeeded()) {
-        fut.complete();
-      } else {
-        fut.fail(ar.cause());
-      }
-    });
+    vertx.deployVerticle(
+      "io.vertx.starter.KafkaProducerVerticle",  // <4>
+      new DeploymentOptions().setWorker(true).setInstances(5));
 
   }
 

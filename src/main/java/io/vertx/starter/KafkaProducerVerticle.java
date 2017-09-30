@@ -20,16 +20,12 @@ package io.vertx.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -39,7 +35,6 @@ import java.util.Properties;
 public class KafkaProducerVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducerVerticle.class);
 
-  private Map<String, JsonObject> products = new HashMap<>();
   public static final String CONFIG_WIKIDB_QUEUE = "wikidb.queue";
 
   private KafkaProducer<String, String> producer;
@@ -47,10 +42,8 @@ public class KafkaProducerVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> startFuture) throws Exception {
 
-    setUpInitialData();
-
     Properties config = new Properties();
-    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     config.put(ProducerConfig.ACKS_CONFIG, "1");
 
     // use producer for interacting with Apache Kafka
@@ -65,7 +58,6 @@ public class KafkaProducerVerticle extends AbstractVerticle {
   // tag::onMessage[]
 
   public void onMessage(Message<String> message) {
-    LOGGER.info(message.body());
     if (!message.headers().contains("action")) {
       LOGGER.error("No action header specified for message with headers {}",
         message.headers());
@@ -77,23 +69,8 @@ public class KafkaProducerVerticle extends AbstractVerticle {
       KafkaProducerRecord.create("test", message.body());
 
     producer.write(record);
-
-    String action = message.headers().get("action");
-    JsonArray jsonArray = new JsonArray();
-    products.forEach((k, v) -> jsonArray.add(v));
-    message.reply(jsonArray);
-
+    LOGGER.info(message.body());
   }
   // end::onMessage[]
-
-  private void setUpInitialData() {
-    addProduct(new JsonObject().put("id", "prod3568").put("name", "Egg Whisk").put("price", 3.99).put("weight", 150));
-    addProduct(new JsonObject().put("id", "prod7340").put("name", "Tea Cosy").put("price", 5.99).put("weight", 100));
-    addProduct(new JsonObject().put("id", "prod8643").put("name", "Spatula").put("price", 1.00).put("weight", 80));
-  }
-
-  private void addProduct(JsonObject product) {
-    products.put(product.getString("id"), product);
-  }
 
 }

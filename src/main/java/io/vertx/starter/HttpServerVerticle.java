@@ -3,12 +3,9 @@ package io.vertx.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.rx.java.ObservableHandler;
-import io.vertx.rx.java.RxHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +44,13 @@ public class HttpServerVerticle extends AbstractVerticle {
         }
       );
   }
-  ObservableHandler<Long> observable = RxHelper.observableHandler();
-
   private void handleListProducts(RoutingContext routingContext) {
 
     LOGGER.info(routingContext.currentRoute().getPath());
     DeliveryOptions options = new DeliveryOptions().addHeader("action", "all-pages"); // <2>
 
-    vertx.eventBus().send(wikiDbQueue, routingContext.getBodyAsString(), options, reply -> {  // <1>
-      if (reply.succeeded()) {
-        JsonArray body = (JsonArray) reply.result().body();
-        routingContext.response().putHeader("content-type", "application/json").end(body.encodePrettily());
-      } else {
-        routingContext.fail(reply.cause());
-      }
-    });
+    vertx.eventBus().send(wikiDbQueue, routingContext.getBodyAsString(), options);
+    routingContext.response().end("ok");
 
   }
 
