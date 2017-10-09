@@ -12,8 +12,12 @@ store data file to other dir
 * ?????????????????????????hbase???????
 docker exec -it -u hbase regionserver-1 hbase hbck -fixMeta
 
+== build docker
+ gradle clean build -x test shadow docker
+
 == run
-docker run -t -i -p 8081:8081 --link zookeeper-1:zookeeper --link kafka-1:kafka --net vnet vertx-kafka:1.0-SNAPSHOT
+  docker network create vnet
+  docker run -t -i -p 8081:8081 --link zookeeper-1:zookeeper --link kafka-1:kafka --net vnet vertx-kafka:1.0-SNAPSHOT
 
 
 = Vert.x Gradle Starter
