@@ -1,6 +1,7 @@
 
 = customer
 == hbase
+docker exec -it -u hbase regionserver-1 hbase shell
 * create 'test', 'cf'
 * scan 'test'
 
